@@ -1,7 +1,7 @@
 from docx import Document
 import io
 
-def generuj_docx(name, position, description, exp_list, edu_list, skills_list, langs_list):
+def generuj_docx(name, position, description, exp_list, edu_list, skills_list, langs_list, rodo=True):
     doc = Document()
     
     if name:
@@ -39,7 +39,15 @@ def generuj_docx(name, position, description, exp_list, edu_list, skills_list, l
         doc.add_heading("Języki obce", level=1)
         for lang in langs_list:
             doc.add_paragraph(f"{lang['lang']} - {lang['level']}")
-            
+        
+    if rodo:
+        doc.add_paragraph() # Pusta linia odstępu
+        p_rodo = doc.add_paragraph()
+        p_rodo.alignment = 1 # Wyśrodkowanie tekstu w python-docx
+        run_rodo = p_rodo.add_run("Wyrażam zgodę na przetwarzanie moich danych osobowych dla potrzeb niezbędnych do realizacji procesu rekrutacji (zgodnie z rozporządzeniem o ochronie danych osobowych RODO).")
+        run_rodo.font.size = 101600 # Odpowiednik małej czcionki (8-9 pkt)
+        run_rodo.font.color.rgb = (120, 120, 120)
+
     bio = io.BytesIO()
     doc.save(bio)
     return bio.getvalue()
