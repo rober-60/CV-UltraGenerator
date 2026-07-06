@@ -5,7 +5,7 @@ import tempfile
 from fpdf import FPDF
 from PIL import Image
 
-from config import RODO_TEKST
+from config import RODO_MARGIN_MM, RODO_TEKST
 
 
 def _temp_image_path(photo_bytes):
@@ -24,6 +24,16 @@ def _embed_photo(pdf, photo_bytes, x, y, w):
         pdf.image(path, x=x, y=y, w=w)
     finally:
         os.unlink(path)
+
+
+def _dodaj_rodo(pdf, uklad):
+    pdf.page = 1
+    pdf.set_auto_page_break(auto=False)
+    pdf.set_y(-RODO_MARGIN_MM)
+    pdf.set_font("Roboto", size=7)
+    pdf.set_text_color(120, 120, 120)
+    pdf.set_x(pdf.l_margin)
+    pdf.multi_cell(0, 3.5, txt=RODO_TEKST, align="C")
 
 
 def generuj_pdf(
@@ -47,7 +57,8 @@ def generuj_pdf(
 ):
     pdf = FPDF()
     pdf.add_page()
-    pdf.set_auto_page_break(auto=True, margin=15)
+    dolny_margines = RODO_MARGIN_MM + 2 if rodo else 15
+    pdf.set_auto_page_break(auto=True, margin=dolny_margines)
 
     pdf.add_font("Roboto", "", "Roboto-Regular.ttf")
     pdf.add_font("Roboto", "B", "Roboto-Bold.ttf")
@@ -124,7 +135,7 @@ def generuj_pdf(
             pdf.ln(5)
 
         if exp_list:
-            pdf.ln(5)
+            pdf.ln(3)
             pdf.set_xy(72, pdf.get_y())
             pdf.set_font("Roboto", style="B", size=14)
             pdf.set_text_color(kolor_rgb[0], kolor_rgb[1], kolor_rgb[2])
@@ -144,10 +155,10 @@ def generuj_pdf(
                     pdf.set_xy(72, pdf.get_y())
                     pdf.set_font("Roboto", size=10)
                     pdf.multi_cell(125, 5, txt=job["duty"])
-                pdf.ln(3)
+                pdf.ln(2)
 
         if edu_list:
-            pdf.ln(5)
+            pdf.ln(3)
             pdf.set_xy(72, pdf.get_y())
             pdf.set_font("Roboto", style="B", size=14)
             pdf.set_text_color(kolor_rgb[0], kolor_rgb[1], kolor_rgb[2])
@@ -167,7 +178,7 @@ def generuj_pdf(
                     pdf.set_xy(72, pdf.get_y())
                     pdf.set_font("Roboto", size=10)
                     pdf.cell(125, 5, txt=f"Kierunek: {edu['field']}", ln=True)
-                pdf.ln(3)
+                pdf.ln(2)
 
     else:
         if photo_bytes:
@@ -209,7 +220,7 @@ def generuj_pdf(
             pdf.ln(5)
 
         if exp_list:
-            pdf.ln(5)
+            pdf.ln(3)
             pdf.set_font("Roboto", style="B", size=16)
             pdf.set_text_color(kolor_rgb[0], kolor_rgb[1], kolor_rgb[2])
             pdf.cell(200, 10, txt="Doświadczenie zawodowe", ln=True)
@@ -225,10 +236,10 @@ def generuj_pdf(
                 if job["duty"]:
                     pdf.set_font("Roboto", size=11)
                     pdf.multi_cell(0, 6, txt=job["duty"])
-                pdf.ln(4)
+                pdf.ln(2)
 
         if edu_list:
-            pdf.ln(5)
+            pdf.ln(3)
             pdf.set_font("Roboto", style="B", size=16)
             pdf.set_text_color(kolor_rgb[0], kolor_rgb[1], kolor_rgb[2])
             pdf.cell(200, 10, txt="Edukacja", ln=True)
@@ -244,10 +255,10 @@ def generuj_pdf(
                 if edu["field"]:
                     pdf.set_font("Roboto", size=11)
                     pdf.cell(200, 6, txt=f"Kierunek: {edu['field']}", ln=True)
-                pdf.ln(4)
+                pdf.ln(2)
 
         if skills_list:
-            pdf.ln(5)
+            pdf.ln(3)
             pdf.set_font("Roboto", style="B", size=16)
             pdf.set_text_color(kolor_rgb[0], kolor_rgb[1], kolor_rgb[2])
             pdf.cell(200, 10, txt="Umiejętności", ln=True)
@@ -258,7 +269,7 @@ def generuj_pdf(
             pdf.multi_cell(0, 6, txt=", ".join(skills_list))
 
         if langs_list:
-            pdf.ln(5)
+            pdf.ln(3)
             pdf.set_font("Roboto", style="B", size=16)
             pdf.set_text_color(kolor_rgb[0], kolor_rgb[1], kolor_rgb[2])
             pdf.cell(200, 10, txt="Języki obce", ln=True)
@@ -270,7 +281,7 @@ def generuj_pdf(
                 pdf.cell(200, 6, txt=f"{lang['lang']} - {lang['level']}", ln=True)
 
         if cert_list:
-            pdf.ln(5)
+            pdf.ln(3)
             pdf.set_font("Roboto", style="B", size=16)
             pdf.set_text_color(kolor_rgb[0], kolor_rgb[1], kolor_rgb[2])
             pdf.cell(200, 10, txt="Certyfikaty i Kursy", ln=True)
@@ -282,13 +293,6 @@ def generuj_pdf(
                 pdf.cell(200, 6, txt=f"- {cert}", ln=True)
 
     if rodo:
-        pdf.set_y(280)
-        pdf.set_font("Roboto", size=8)
-        pdf.set_text_color(120, 120, 120)
-        if uklad == "split":
-            pdf.set_x(10)
-            pdf.multi_cell(190, 4, txt=RODO_TEKST, align="C")
-        else:
-            pdf.multi_cell(0, 4, txt=RODO_TEKST, align="C")
+        _dodaj_rodo(pdf, uklad)
 
     return bytes(pdf.output())

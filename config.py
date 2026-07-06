@@ -10,3 +10,5 @@ RODO_TEKST = (
     "Wyrażam zgodę na przetwarzanie moich danych osobowych dla potrzeb niezbędnych "
     "do realizacji procesu rekrutacji (zgodnie z rozporządzeniem o ochronie danych osobowych RODO)."
 )
+
+RODO_MARGIN_MM = 14

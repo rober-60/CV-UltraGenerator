@@ -2,6 +2,7 @@ import streamlit as st
 
 from config import SEKCJE, SZABLONY
 from functions import formularz_sekcji, zarzadzaj_sekcja
+from preview import pokaz_pdf
 from pdf_generator import generuj_pdf
 from docx_generator import generuj_docx
 
@@ -94,7 +95,7 @@ with col2:
         rodo=dodaj_rodo,
         photo_bytes=photo_bytes,
     )
-    st.pdf(pdf_data, height=820)
+    pokaz_pdf(pdf_data, height=820)
 
     if uklad == "split":
         st.caption("Eksport Word ma układ jednokolumnowy — różni się od szablonu dwukolumnowego.")
