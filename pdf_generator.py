@@ -5,7 +5,7 @@ import tempfile
 from fpdf import FPDF
 from PIL import Image
 
-from config import RODO_MARGIN_MM, RODO_TEKST
+from config import RODO_ODSTEP_DOL_MM, RODO_REZERWA_EXTRA_MM, RODO_TEKST
 
 
 def _temp_image_path(photo_bytes):
@@ -26,14 +26,34 @@ def _embed_photo(pdf, photo_bytes, x, y, w):
         os.unlink(path)
 
 
-def _dodaj_rodo(pdf, uklad):
+def _wysokosc_rodo(pdf):
+    pdf.set_font("Roboto", size=7)
+    szerokosc = pdf.w - pdf.l_margin - pdf.r_margin
+    linie = pdf.multi_cell(
+        szerokosc, 3.5, RODO_TEKST, align="C", dry_run=True, output="LINES"
+    )
+    return len(linie) * 3.5
+
+
+def _ogranicz_do_jednej_strony(pdf):
+    while len(pdf.pages) > 1:
+        del pdf.pages[max(pdf.pages.keys())]
+    pdf.page = 1
+
+
+def _miejsce_na_tresc(pdf, zarezerwowany_dol):
+    return pdf.get_y() < pdf.h - zarezerwowany_dol
+
+
+def _dodaj_rodo(pdf, wysokosc_rodo):
+    _ogranicz_do_jednej_strony(pdf)
     pdf.page = 1
     pdf.set_auto_page_break(auto=False)
-    pdf.set_y(-RODO_MARGIN_MM)
+    szerokosc = pdf.w - pdf.l_margin - pdf.r_margin
+    pdf.set_xy(pdf.l_margin, pdf.h - wysokosc_rodo - RODO_ODSTEP_DOL_MM)
     pdf.set_font("Roboto", size=7)
     pdf.set_text_color(120, 120, 120)
-    pdf.set_x(pdf.l_margin)
-    pdf.multi_cell(0, 3.5, txt=RODO_TEKST, align="C")
+    pdf.multi_cell(szerokosc, 3.5, RODO_TEKST, align="C")
 
 
 def generuj_pdf(
@@ -57,12 +77,14 @@ def generuj_pdf(
 ):
     pdf = FPDF()
     pdf.add_page()
-    dolny_margines = RODO_MARGIN_MM + 2 if rodo else 15
-    pdf.set_auto_page_break(auto=True, margin=dolny_margines)
 
     pdf.add_font("Roboto", "", "Roboto-Regular.ttf")
     pdf.add_font("Roboto", "B", "Roboto-Bold.ttf")
     pdf.set_font("Roboto", size=12)
+
+    wysokosc_rodo = _wysokosc_rodo(pdf) if rodo else 0
+    zarezerwowany_dol = wysokosc_rodo + RODO_REZERWA_EXTRA_MM if rodo else 15
+    pdf.set_auto_page_break(auto=True, margin=zarezerwowany_dol)
 
     if uklad == "split":
         pdf.set_fill_color(243, 244, 246)
@@ -105,27 +127,33 @@ def generuj_pdf(
                 pdf.cell(50, 5, txt=f"GitHub: {github}", ln=True)
             pdf.ln(8)
 
-        if skills_list:
+        if skills_list and _miejsce_na_tresc(pdf, zarezerwowany_dol):
             pdf.set_font("Roboto", style="B", size=12)
             pdf.cell(50, 6, txt="UMIEJĘTNOŚCI", ln=True)
             pdf.set_font("Roboto", size=10)
             for skill in skills_list:
+                if not _miejsce_na_tresc(pdf, zarezerwowany_dol):
+                    break
                 pdf.cell(50, 5, txt=f"- {skill}", ln=True)
             pdf.ln(8)
 
-        if langs_list:
+        if langs_list and _miejsce_na_tresc(pdf, zarezerwowany_dol):
             pdf.set_font("Roboto", style="B", size=12)
             pdf.cell(50, 6, txt="JĘZYKI", ln=True)
             pdf.set_font("Roboto", size=10)
             for lang in langs_list:
+                if not _miejsce_na_tresc(pdf, zarezerwowany_dol):
+                    break
                 pdf.cell(50, 5, txt=f"{lang['lang']} ({lang['level']})", ln=True)
             pdf.ln(8)
 
-        if cert_list:
+        if cert_list and _miejsce_na_tresc(pdf, zarezerwowany_dol):
             pdf.set_font("Roboto", style="B", size=12)
             pdf.cell(50, 6, txt="CERTYFIKATY", ln=True)
             pdf.set_font("Roboto", size=9)
             for cert in cert_list:
+                if not _miejsce_na_tresc(pdf, zarezerwowany_dol):
+                    break
                 pdf.multi_cell(50, 5, txt=f"- {cert}")
 
         pdf.set_xy(72, 15)
@@ -293,6 +321,6 @@ def generuj_pdf(
                 pdf.cell(200, 6, txt=f"- {cert}", ln=True)
 
     if rodo:
-        _dodaj_rodo(pdf, uklad)
+        _dodaj_rodo(pdf, wysokosc_rodo)
 
     return bytes(pdf.output())

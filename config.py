@@ -11,4 +11,5 @@ RODO_TEKST = (
     "do realizacji procesu rekrutacji (zgodnie z rozporządzeniem o ochronie danych osobowych RODO)."
 )
 
-RODO_MARGIN_MM = 14
+RODO_ODSTEP_DOL_MM = 3
+RODO_REZERWA_EXTRA_MM = 5
