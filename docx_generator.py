@@ -1,34 +1,74 @@
-from docx import Document
 import io
 
-def generuj_docx(name, position, description, exp_list, edu_list, skills_list, langs_list, rodo=True):
+from docx import Document
+from docx.shared import Inches, Pt, RGBColor
+
+from config import RODO_TEKST
+
+
+def generuj_docx(
+    name,
+    position,
+    description,
+    exp_list,
+    edu_list,
+    skills_list,
+    langs_list,
+    cert_list=None,
+    phone="",
+    email="",
+    location="",
+    linkedin="",
+    github="",
+    rodo=True,
+    photo_bytes=None,
+):
     doc = Document()
-    
+
+    if photo_bytes:
+        doc.add_picture(io.BytesIO(photo_bytes), width=Inches(1.2))
+
     if name:
         doc.add_heading(name, level=0)
     if position:
         p = doc.add_paragraph()
         p.add_run(position).italic = True
-        
+
+    kontakt = []
+    if phone:
+        kontakt.append(f"Tel: {phone}")
+    if email:
+        kontakt.append(f"Email: {email}")
+    if location:
+        kontakt.append(f"Lokalizacja: {location}")
+    if linkedin:
+        kontakt.append(f"LinkedIn: {linkedin}")
+    if github:
+        kontakt.append(f"GitHub: {github}")
+    if kontakt:
+        doc.add_paragraph(" | ".join(kontakt))
+
     if description:
         doc.add_paragraph(description)
-        
+
     if exp_list:
         doc.add_heading("Doświadczenie zawodowe", level=1)
         for job in exp_list:
             naglowek_pracy = f"{job['role']} w {job['company']}"
-            if job['years']: naglowek_pracy += f" ({job['years']})"
+            if job["years"]:
+                naglowek_pracy += f" ({job['years']})"
             doc.add_heading(naglowek_pracy, level=2)
-            if job['duty']:
-                doc.add_paragraph(job['duty'])
+            if job["duty"]:
+                doc.add_paragraph(job["duty"])
 
     if edu_list:
         doc.add_heading("Edukacja", level=1)
         for edu in edu_list:
-            naglowek_szkoły = edu['school']
-            if edu['years_edu']: naglowek_szkoły += f" ({edu['years_edu']})"
-            doc.add_heading(naglowek_szkoły, level=2)
-            if edu['field']:
+            naglowek_szkoly = edu["school"]
+            if edu["years_edu"]:
+                naglowek_szkoly += f" ({edu['years_edu']})"
+            doc.add_heading(naglowek_szkoly, level=2)
+            if edu["field"]:
                 doc.add_paragraph(f"Kierunek: {edu['field']}")
 
     if skills_list:
@@ -39,14 +79,19 @@ def generuj_docx(name, position, description, exp_list, edu_list, skills_list, l
         doc.add_heading("Języki obce", level=1)
         for lang in langs_list:
             doc.add_paragraph(f"{lang['lang']} - {lang['level']}")
-        
+
+    if cert_list:
+        doc.add_heading("Certyfikaty i Kursy", level=1)
+        for cert in cert_list:
+            doc.add_paragraph(f"- {cert}")
+
     if rodo:
-        doc.add_paragraph() # Pusta linia odstępu
+        doc.add_paragraph()
         p_rodo = doc.add_paragraph()
-        p_rodo.alignment = 1 # Wyśrodkowanie tekstu w python-docx
-        run_rodo = p_rodo.add_run("Wyrażam zgodę na przetwarzanie moich danych osobowych dla potrzeb niezbędnych do realizacji procesu rekrutacji (zgodnie z rozporządzeniem o ochronie danych osobowych RODO).")
-        run_rodo.font.size = 101600 # Odpowiednik małej czcionki (8-9 pkt)
-        run_rodo.font.color.rgb = (120, 120, 120)
+        p_rodo.alignment = 1
+        run_rodo = p_rodo.add_run(RODO_TEKST)
+        run_rodo.font.size = Pt(8)
+        run_rodo.font.color.rgb = RGBColor(120, 120, 120)
 
     bio = io.BytesIO()
     doc.save(bio)
