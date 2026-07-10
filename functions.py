@@ -20,7 +20,7 @@ def formularz_sekcji(id_formularza, naglowek, pola, klucz_pamieci):
                 st.session_state[klucz_pamieci].append(wpis)
                 st.rerun()
 
-def zarzadzaj_sekcja(naglowek, klucz_pamieci, funkcja_formatowania, klucz_id):
+def zarzadzaj_sekcja(klucz_pamieci, funkcja_formatowania, klucz_id):
     if st.session_state[klucz_pamieci]:
         for index, element in enumerate(st.session_state[klucz_pamieci]):
             c1, c2 = st.columns([4, 1])
