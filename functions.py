@@ -10,6 +10,31 @@ def formularz_sekcji(id_formularza, naglowek, pola, klucz_pamieci):
                 dane_wpisu[klucz_pola] = st.selectbox(nazwa_pola, ["A1", "A2", "B1", "B2", "C1", "C2", "Ojczysty"])
             elif klucz_pola == "duty":
                 dane_wpisu[klucz_pola] = st.text_area(nazwa_pola)
+            elif klucz_pola == "years":
+                    lata = st.text_input(nazwa_pola,placeholder="2015 - 2020")
+
+                    if lata:
+                        tekst_low = lata.lower()
+                        if "obec" in lata : obecnie_flag = True
+
+                        digits = "".join([char for char in tekst_low if (char.isdigit() or char=="-")])
+
+
+                        if "-" in digits:
+                            start,stop = digits.split("-")     
+                            start = start.strip()
+                            stop = stop.strip()
+
+                            if obecnie_flag:
+                                stop = "Obecnie"
+                            dane_wpisu[klucz_pola] = f"{start} - {stop}"
+                        else:
+                            if obecnie_flag:
+                                dane_wpisu[klucz_pola] = f"{digits.strip()} - Obecnie" if digits.strip() else "Obecnie"
+                            else:
+                                dane_wpisu[klucz_pola] = digits.strip()
+                    else:
+                        dane_wpisu[klucz_pola] = ""
             else:
                 dane_wpisu[klucz_pola] = st.text_input(nazwa_pola)
         

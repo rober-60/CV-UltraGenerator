@@ -36,14 +36,16 @@ with col1:
     st.write("---")
     st.subheader("Dane kontaktowe")
 
-    phone_input = st.text_input("Telefon (9 cyfr)", placeholder="123 456 789")
+    phone = ""
+    phone_input = st.text_input("Telefon", placeholder="123 456 789")
     phone_digits = "".join([char for char in phone_input if char.isdigit()])
-    if phone_digits and len(phone_digits) != 9:
-        st.caption("Numer telefonu powinien składać się z dokładnie 9 cyfr.")
-        phone = phone_digits[:9]
-    phone = f"{phone_digits[:3]} {phone_digits[3:6]} {phone_digits[6:9]}"
+    if phone_digits:
+        if len(phone_digits) != 9:
+            st.caption("Numer telefonu powinien składać się z dokładnie 9 cyfr.")
+            phone = phone_digits[:9]
+        phone = f"{phone_digits[:3]} {phone_digits[3:6]} {phone_digits[6:9]}"
 
-    email = st.text_input("Email", placeholder="jan.kowalski@email.com")
+    email = st.text_input("Email", placeholder="jankowalski@email.com")
     location = st.text_input("Lokalizacja", placeholder="Warszawa, Polska")
     linkedin = st.text_input("LinkedIn (link)", placeholder="linkedin.com/in/username")
     github_link = st.text_input("GitHub (link)", placeholder="github.com/username")
