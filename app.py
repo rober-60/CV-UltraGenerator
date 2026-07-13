@@ -59,13 +59,18 @@ with col1:
     
     st.write("---")
     st.subheader("Umiejętności")
+    wlacz = st.toggle("Włącz poziom zaawansowania")
+
     with st.form("skills_form", clear_on_submit=True):
-        skill_name = st.text_input("Nazwa umiejętności", placeholder="np. Python, SQL, Git")
-        skill_level = st.slider("Poziom zaawansowania", min_value=1, max_value=5, value=3)
+        skill_name = st.text_input("Nazwa umiejętności",placeholder="np. Python, SQL, Git")
+        skill_level = None
+        if wlacz:
+            skill_level = st.slider("Poziom zaawansowania",min_value=1,max_value=5,value=3)
+
         submit_skill = st.form_submit_button("Dodaj umiejętność")
-        
+
         if submit_skill and skill_name:
-            st.session_state.skills.append({"skill": skill_name, "level": skill_level})
+            st.session_state.skills.append({"skill": skill_name,"level": skill_level})
             st.rerun()
 
 
@@ -82,7 +87,15 @@ with col1:
 
         zarzadzaj_sekcja("exp", lambda j: f"Praca: {j['role']} w {j['company']}", "exp_manage")
         zarzadzaj_sekcja("edu", lambda e: f"Szkoła: {e['school']}", "edu_manage")
-        zarzadzaj_sekcja("skills", lambda s: f"Umiejętność: {s['skill']} ({'★' * s['level']}{'☆' * (5 - s['level'])})", "skill_manage")
+        zarzadzaj_sekcja(
+            "skills",
+            lambda s: (
+                f"Umiejętność: {s['skill']}"
+                if s["level"] is None
+                else f"Umiejętność: {s['skill']} ({'★' * s['level']}{'☆' * (5 - s['level'])})"
+            ),
+            "skill_manage"
+        )
         zarzadzaj_sekcja("langs", lambda l: f"Język: {l['lang']} ({l['level']})", "lang_manage")
         zarzadzaj_sekcja("cert", lambda c: f"Certyfikat: {c}", "cert_manage")
 
@@ -131,8 +144,11 @@ with col2:
                 st.write("---")
                 st.markdown(f"<h4 style='color: {kolor_glowny};'>Umiejętności</h4>", unsafe_allow_html=True)
                 for s in st.session_state.skills:
-                    gwiazdki = "★" * s['level'] + "☆" * (5 - s['level'])
-                    st.write(f"**{s['skill']}** \n{gwiazdki}")
+                    if s["level"] is None:
+                        st.write(f"{s['skill']}")
+                    else:
+                        gwiazdki = "★" * s['level'] + "☆" * (5 - s['level'])
+                        st.write(f"**{s['skill']}** \n{gwiazdki}")
 
             if st.session_state.langs:
                 st.write("---")
@@ -222,8 +238,14 @@ with col2:
 
         if st.session_state.skills:
             st.markdown(f"<h3 style='color: {kolor_glowny};'>Umiejętności</h3>", unsafe_allow_html=True)
-            # POPRAWKA: Przerabiamy słowniki na tekst z gwiazdkami, żeby .join() rósł poprawnie
-            bloki_skilli = [f"**{s['skill']}** ({'★' * s['level']}{'☆' * (5 - s['level'])})" for s in st.session_state.skills]
+            bloki_skilli = [
+                (
+                    f"**{s['skill']}**"
+                    if s["level"] is None
+                    else f"**{s['skill']}** ({'★' * s['level']}{'☆' * (5 - s['level'])})"
+                )
+    for s in st.session_state.skills
+]
             st.write(", ".join(bloki_skilli))
             st.write("---")
 

@@ -156,8 +156,11 @@ def generuj_pdf(
                 pdf.cell(50, 4, txt=s['skill'], ln=True)
                 pdf.set_font("Roboto", size=9)
                 pdf.set_text_color(kolor_rgb[0], kolor_rgb[1], kolor_rgb[2]) # gwiazdki w kolorze motywu!
-                kropki = "● " * s['level'] + "○ " * (5 - s['level'])
-                pdf.cell(50, 4, txt=kropki.strip(), ln=True)
+                if s["level"] is None:
+                    pass
+                else:
+                    kropki = "● " * s["level"] + "○ " * (5 - s["level"])
+                    pdf.cell(50, 4, txt=kropki.strip(), ln=True)
                 pdf.set_text_color(0, 0, 0)
                 pdf.ln(1)
             pdf.ln(5)
@@ -327,8 +330,11 @@ def generuj_pdf(
                 pdf.set_font("Roboto", size=11)
                 tekst_skilli = []
                 for s in skills_list:
-                    kropki = "●" * s['level'] + "○" * (5 - s['level'])
-                    tekst_skilli.append(f"{s['skill']} ({kropki})")
+                    if s["level"] is None:
+                        tekst_skilli.append(s["skill"])
+                    else:
+                        kropki = "●" * s["level"] + "○" * (5 - s["level"])
+                        tekst_skilli.append(f"{s['skill']} ({kropki})")
                     
                 pdf.multi_cell(0, 6, txt=", ".join(tekst_skilli))
 

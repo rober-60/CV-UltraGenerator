@@ -49,13 +49,17 @@ def generuj_docx(name, position, description, exp_list, edu_list, skills_list, l
             if edu['field']:
                 doc.add_paragraph(f"Kierunek: {edu['field']}")
 
-    # 6. Umiejętności
     if skills_list:
         doc.add_heading("Umiejętności", level=1)
         tekst_skilli = []
+
         for s in skills_list:
-            gwiazdki = "★" * s['level'] + "☆" * (5 - s['level'])
-            tekst_skilli.append(f"{s['skill']} ({gwiazdki})")
+            if s["level"] is None:
+                tekst_skilli.append(s["skill"])
+            else:
+                gwiazdki = "★" * s["level"] + "☆" * (5 - s["level"])
+                tekst_skilli.append(f"{s['skill']} ({gwiazdki})")
+
         doc.add_paragraph(", ".join(tekst_skilli))
 
     # 7. Języki obce
@@ -64,22 +68,19 @@ def generuj_docx(name, position, description, exp_list, edu_list, skills_list, l
         for lang in langs_list:
             doc.add_paragraph(f"{lang['lang']} - {lang['level']}")
 
-    # 8. Certyfikaty i Kursy
     if cert_list:
         doc.add_heading("Certyfikaty i Kursy", level=1)
         for cert in cert_list:
             doc.add_paragraph(f"- {cert}")
-            
-    # 9. Klauzula RODO na dole
+
     if rodo:
         doc.add_paragraph()  
         p_rodo = doc.add_paragraph()
-        p_rodo.alignment = 1  # Wyśrodkowanie
+        p_rodo.alignment = 1
         run_rodo = p_rodo.add_run("Wyrażam zgodę na przetwarzanie moich danych osobowych dla potrzeb niezbędnych do realizacji procesu rekrutacji (zgodnie z rozporządzeniem o ochronie danych osobowych RODO).")
-        run_rodo.font.size = Pt(8.5)  # Używamy bezpiecznego formatu punktowego zamiast surowych bitów
-        run_rodo.font.color.rgb = RGBColor(120, 120, 120)  # POPRAWKA TUTAJ
+        run_rodo.font.size = Pt(8.5)
+        run_rodo.font.color.rgb = RGBColor(120, 120, 120)
             
-    # Zapis do pamięci RAM jako bajty
     bio = io.BytesIO()
     doc.save(bio)
     return bio.getvalue()
