@@ -1,18 +1,19 @@
 import io
 from docx import Document
-from docx.shared import RGBColor, Pt  # NOWOŚĆ: dodaliśmy RGBColor i Pt dla świętego spokoju
+from docx.shared import RGBColor, Pt, Inches
 
 def generuj_docx(name, position, description, exp_list, edu_list, skills_list, langs_list, cert_list=None, phone=None, email=None, location=None, linkedin=None, github=None, rodo=True, photo_bytes=None):
     doc = Document()
     
-    # 1. Nagłówek i Stanowisko
+    if photo_bytes:
+        doc.add_picture(io.BytesIO(photo_bytes), width=Inches(1.2))
+        
     if name:
         doc.add_heading(name, level=0)
     if position:
         p_pos = doc.add_paragraph()
         p_pos.add_run(position).italic = True
         
-    # 2. Dane kontaktowe
     bloki_kontaktowe = []
     if phone: bloki_kontaktowe.append(f"Tel: {phone}")
     if email: bloki_kontaktowe.append(f"Email: {email}")
@@ -23,13 +24,11 @@ def generuj_docx(name, position, description, exp_list, edu_list, skills_list, l
     if bloki_kontaktowe:
         p_kon = doc.add_paragraph()
         run_kon = p_kon.add_run(" | ".join(bloki_kontaktowe))
-        run_kon.font.color.rgb = RGBColor(100, 100, 100)  # POPRAWKA TUTAJ
+        run_kon.font.color.rgb = RGBColor(100, 100, 100)
 
-    # 3. O sobie
     if description:
         doc.add_paragraph(description)
-        
-    # 4. Doświadczenie zawodowe
+
     if exp_list:
         doc.add_heading("Doświadczenie zawodowe", level=1)
         for job in exp_list:
@@ -39,7 +38,6 @@ def generuj_docx(name, position, description, exp_list, edu_list, skills_list, l
             if job['duty']:
                 doc.add_paragraph(job['duty'])
 
-    # 5. Edukacja
     if edu_list:
         doc.add_heading("Edukacja", level=1)
         for edu in edu_list:
@@ -62,7 +60,6 @@ def generuj_docx(name, position, description, exp_list, edu_list, skills_list, l
 
         doc.add_paragraph(", ".join(tekst_skilli))
 
-    # 7. Języki obce
     if langs_list:
         doc.add_heading("Języki obce", level=1)
         for lang in langs_list:

@@ -7,34 +7,44 @@ def formularz_sekcji(id_formularza, naglowek, pola, klucz_pamieci):
         dane_wpisu = {}
         for klucz_pola, nazwa_pola in pola.items():
             if klucz_pola == "level":
-                dane_wpisu[klucz_pola] = st.selectbox(nazwa_pola, ["A1", "A2", "B1", "B2", "C1", "C2", "Ojczysty"])
+                uzyj_gwiazdek = st.session_state.get("toggle_stars", True)
+                
+                if klucz_pamieci == "langs":
+                    dane_wpisu[klucz_pola] = st.selectbox(nazwa_pola, ["A1", "A2", "B1", "B2", "C1", "C2", "Ojczysty"])
+                elif uzyj_gwiazdek:
+                    dane_wpisu[klucz_pola] = st.slider(nazwa_pola, 1, 5, 3)
+                else:
+                    dane_wpisu[klucz_pola] = None
+
             elif klucz_pola == "duty":
                 dane_wpisu[klucz_pola] = st.text_area(nazwa_pola)
-            elif klucz_pola == "years":
-                    lata = st.text_input(nazwa_pola,placeholder="2015 - 2020")
+                
+            elif klucz_pola in ("years","years_edu"):
+                lata = st.text_input(nazwa_pola, placeholder="2015 - 2020")
 
-                    if lata:
-                        tekst_low = lata.lower()
-                        if "obec" in lata : obecnie_flag = True
+                if lata:
+                    obecnie_flag = False
+                    tekst_low = lata.lower()
+                    if "obec" in tekst_low: 
+                        obecnie_flag = True
 
-                        digits = "".join([char for char in tekst_low if (char.isdigit() or char=="-")])
+                    digits = "".join([char for char in tekst_low if (char.isdigit() or char == "-")])
 
+                    if "-" in digits:
+                        start, stop = digits.split("-", 1)     
+                        start = start.strip()
+                        stop = stop.strip()
 
-                        if "-" in digits:
-                            start,stop = digits.split("-")     
-                            start = start.strip()
-                            stop = stop.strip()
-
-                            if obecnie_flag:
-                                stop = "Obecnie"
-                            dane_wpisu[klucz_pola] = f"{start} - {stop}"
-                        else:
-                            if obecnie_flag:
-                                dane_wpisu[klucz_pola] = f"{digits.strip()} - Obecnie" if digits.strip() else "Obecnie"
-                            else:
-                                dane_wpisu[klucz_pola] = digits.strip()
+                        if obecnie_flag:
+                            stop = "Obecnie"
+                        dane_wpisu[klucz_pola] = f"{start} - {stop}"
                     else:
-                        dane_wpisu[klucz_pola] = ""
+                        if obecnie_flag:
+                            dane_wpisu[klucz_pola] = f"{digits.strip()} - Obecnie" if digits.strip() else "Obecnie"
+                        else:
+                            dane_wpisu[klucz_pola] = digits.strip()
+                else:
+                    dane_wpisu[klucz_pola] = ""
             else:
                 dane_wpisu[klucz_pola] = st.text_input(nazwa_pola)
         

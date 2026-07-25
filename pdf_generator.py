@@ -155,7 +155,7 @@ def generuj_pdf(
                 pdf.set_font("Roboto", style="B", size=10)
                 pdf.cell(50, 4, txt=s['skill'], ln=True)
                 pdf.set_font("Roboto", size=9)
-                pdf.set_text_color(kolor_rgb[0], kolor_rgb[1], kolor_rgb[2]) # gwiazdki w kolorze motywu!
+                pdf.set_text_color(kolor_rgb[0], kolor_rgb[1], kolor_rgb[2])
                 if s["level"] is None:
                     pass
                 else:
