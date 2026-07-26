@@ -55,11 +55,30 @@ def formularz_sekcji(id_formularza, naglowek, pola, klucz_pamieci):
                 st.session_state[klucz_pamieci].append(wpis)
                 st.rerun()
 
+# def zarzadzaj_sekcja(klucz_pamieci, funkcja_formatowania, klucz_id):
+#     if st.session_state[klucz_pamieci]:
+#         for index, element in enumerate(st.session_state[klucz_pamieci]):
+#             c1, c2 = st.columns([4, 1])
+#             c1.write(funkcja_formatowania(element))
+#             if c2.button("Usuń", key=f"del_{klucz_id}_{index}"):
+#                 st.session_state[klucz_pamieci].pop(index)
+#                 st.rerun()
+
 def zarzadzaj_sekcja(klucz_pamieci, funkcja_formatowania, klucz_id):
     if st.session_state[klucz_pamieci]:
-        for index, element in enumerate(st.session_state[klucz_pamieci]):
-            c1, c2 = st.columns([4, 1])
+        lista = st.session_state[klucz_pamieci]
+        for index, element in enumerate(lista):
+            c1, c2, c3, c4 = st.columns([4, 0.6, 0.6, 1])
             c1.write(funkcja_formatowania(element))
-            if c2.button("Usuń", key=f"del_{klucz_id}_{index}"):
-                st.session_state[klucz_pamieci].pop(index)
+
+            if c2.button("↑", key=f"up_{klucz_id}_{index}", disabled=(index == 0)):
+                lista[index - 1], lista[index] = lista[index], lista[index - 1]
+                st.rerun()
+
+            if c3.button("↓", key=f"down_{klucz_id}_{index}", disabled=(index == len(lista) - 1)):
+                lista[index + 1], lista[index] = lista[index], lista[index + 1]
+                st.rerun()
+
+            if c4.button("Usuń", key=f"del_{klucz_id}_{index}"):
+                lista.pop(index)
                 st.rerun()
