@@ -45,7 +45,16 @@ with col1:
             phone = phone_digits[:9]
         phone = f"{phone_digits[:3]} {phone_digits[3:6]} {phone_digits[6:9]}"
 
+
     email = st.text_input("Email", placeholder="jankowalski@email.com")
+    if email:
+        if "@" not in email:
+            st.caption("Email powinien zawierać znak: '@'")
+        elif email.startswith("@") or email.endswith("@"):
+            st.caption("Email nie powinien zaczynać ani kończyć się znakiem '@'")
+        elif "." not in email.split("@")[-1]:
+            st.caption("Email powinien zawierać domenę, np. '.com'")
+
     location = st.text_input("Lokalizacja", placeholder="Warszawa, Polska")
     linkedin = st.text_input("LinkedIn (link)", placeholder="linkedin.com/in/username")
     github_link = st.text_input("GitHub (link)", placeholder="github.com/username")
