@@ -5,6 +5,7 @@ from config import RODO_TEKST, SEKCJE, SZABLONY
 from functions import formularz_sekcji, zarzadzaj_sekcja
 from pdf_generator import generuj_pdf
 from docx_generator import generuj_docx
+from text_generator import generuj_txt
 
 st.set_page_config(layout="wide")
 
@@ -53,7 +54,7 @@ with col1:
         elif email.startswith("@") or email.endswith("@"):
             st.caption("Email nie powinien zaczynać ani kończyć się znakiem '@'")
         elif "." not in email.split("@")[-1]:
-            st.caption("Email powinien zawierać domenę, np. '.com'")
+            st.caption("Email powinien zawierać domenę")
 
     location = st.text_input("Lokalizacja", placeholder="Warszawa, Polska")
     linkedin = st.text_input("LinkedIn (link)", placeholder="linkedin.com/in/username")
@@ -278,7 +279,7 @@ with col2:
     if name:
         st.write("---")
         photo_bytes = uploaded_file.getvalue() if uploaded_file else None
-        c_pdf, c_docx, _ = st.columns([1, 1, 4])
+        c_pdf, c_docx, c_txt, _ = st.columns([1, 1, 1, 3])
 
         with c_pdf:
             pdf_data = generuj_pdf(
@@ -331,5 +332,30 @@ with col2:
                 data=docx_data,
                 file_name="CV.docx",
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                use_container_width=True,
+            )
+
+        with c_txt:
+            txt_data = generuj_txt(
+                name=name,
+                position=position,
+                description=description,
+                exp_list=st.session_state.exp,
+                edu_list=st.session_state.edu,
+                skills_list=st.session_state.skills,
+                langs_list=st.session_state.langs,
+                cert_list=st.session_state.cert,
+                phone=phone,
+                email=email,
+                location=location,
+                linkedin=linkedin,
+                github=github_link,
+                rodo=dodaj_rodo,
+            )
+            st.download_button(
+                label="Pobierz jako TXT",
+                data=txt_data,
+                file_name="CV.txt",
+                mime="text/plain",
                 use_container_width=True,
             )
