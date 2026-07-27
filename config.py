@@ -13,3 +13,10 @@ RODO_TEKST = (
 
 RODO_ODSTEP_DOL_MM = 3
 RODO_REZERWA_EXTRA_MM = 5
+
+POLA_WYMAGANE = {
+    "exp": ["company", "role"],
+    "edu": ["school"],
+    "langs": ["lang"],
+    "cert": ["cert"],
+}
