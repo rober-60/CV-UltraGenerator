@@ -1,6 +1,35 @@
 import streamlit as st
 from config import POLA_WYMAGANE
 
+def pars_years(tekst):
+    if not tekst:
+        return ""
+
+    obecnie_flag = False
+    tekst_low = tekst.lower()
+    
+    if "obec" in tekst_low: 
+        obecnie_flag = True
+
+    digits = "".join([char for char in tekst_low if (char.isdigit() or char == "-")])
+
+    if not any(char.isdigit() for char in digits):
+        return "Obecnie" if obecnie_flag else ""
+    
+    if "-" in digits:
+        start, stop = digits.split("-", 1)     
+        start = start.strip()
+        stop = stop.strip()
+
+        if obecnie_flag:
+            stop = "Obecnie"
+        return f"{start} - {stop}"
+    else:
+        if obecnie_flag:
+            return f"{digits.strip()} - Obecnie" if digits.strip() else "Obecnie"
+        return digits.strip()
+
+
 def formularz_sekcji(id_formularza, naglowek, pola, klucz_pamieci):
     st.write("---")
     st.subheader(naglowek)
@@ -22,30 +51,30 @@ def formularz_sekcji(id_formularza, naglowek, pola, klucz_pamieci):
                 
             elif klucz_pola in ("years","years_edu"):
                 lata = st.text_input(nazwa_pola, placeholder="2015 - 2020")
+                dane_wpisu[klucz_pola] = pars_years(lata)
+                # if lata:
+                #     obecnie_flag = False
+                #     tekst_low = lata.lower()
+                #     if "obec" in tekst_low: 
+                #         obecnie_flag = True
 
-                if lata:
-                    obecnie_flag = False
-                    tekst_low = lata.lower()
-                    if "obec" in tekst_low: 
-                        obecnie_flag = True
+                #     digits = "".join([char for char in tekst_low if (char.isdigit() or char == "-")])
 
-                    digits = "".join([char for char in tekst_low if (char.isdigit() or char == "-")])
+                #     if "-" in digits:
+                #         start, stop = digits.split("-", 1)     
+                #         start = start.strip()
+                #         stop = stop.strip()
 
-                    if "-" in digits:
-                        start, stop = digits.split("-", 1)     
-                        start = start.strip()
-                        stop = stop.strip()
-
-                        if obecnie_flag:
-                            stop = "Obecnie"
-                        dane_wpisu[klucz_pola] = f"{start} - {stop}"
-                    else:
-                        if obecnie_flag:
-                            dane_wpisu[klucz_pola] = f"{digits.strip()} - Obecnie" if digits.strip() else "Obecnie"
-                        else:
-                            dane_wpisu[klucz_pola] = digits.strip()
-                else:
-                    dane_wpisu[klucz_pola] = ""
+                #         if obecnie_flag:
+                #             stop = "Obecnie"
+                #         dane_wpisu[klucz_pola] = f"{start} - {stop}"
+                #     else:
+                #         if obecnie_flag:
+                #             dane_wpisu[klucz_pola] = f"{digits.strip()} - Obecnie" if digits.strip() else "Obecnie"
+                #         else:
+                #             dane_wpisu[klucz_pola] = digits.strip()
+                # else:
+                #     dane_wpisu[klucz_pola] = ""
             else:
                 dane_wpisu[klucz_pola] = st.text_input(nazwa_pola)
         
